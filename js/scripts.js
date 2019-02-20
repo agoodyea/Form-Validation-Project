@@ -244,6 +244,7 @@ function paymentListner(isValid){
             if(id === 'cc-num'){
                 cc = true;
                 $ccError.hide();
+                $ccError2.hide();
             }else if(id === 'zip'){
                 zip = true;
                 $zipError.hide();
@@ -289,13 +290,19 @@ $('#payment').on('change', function(e){
         $('#cc-num').css('border-color', '');
         $('#zip').css('border-color', '');
         $('#cvv').css('border-color', '');
-        $ccError.hide();
-        $cvvError.hide();
-        $zipError.hide();
         cc = true;
         zip = true;
         cvv = true;
     }else{
+        cc = false;
+        zip = false;
+        cvv = false;
+        $('#cc-num').val('');
+        $('#zip').val('');
+        $('#cvv').val('');
+        $('#cc-num').css('border-color', 'red');
+        $('#zip').css('border-color', 'red');
+        $('#cvv').css('border-color', 'red');
         $('#credit-card').show();
     }
 })
@@ -304,6 +311,28 @@ $('#payment').on('change', function(e){
 $('#cc-num').on('blur', paymentListner(isCCTrue));
 $('#zip').on('blur', paymentListner(isZipTrue));
 $('#cvv').on('blur', paymentListner(isCvvTrue));
+
+$('form').on('submit', function(e){
+    if(!name){
+        $nameError.show()
+    };
+    if(!email){
+        $('#mail').css('border-color', 'red');
+        $emailError.show()
+    };
+    if(!activities){
+        $activityError.show()
+    };
+    if(!cc){
+        $ccError2.show()
+    };
+    if(!zip){
+        $zipError.show()
+    };
+    if(!cvv){
+        $cvvError.show()
+    };
+})
 
 // form listner that prevents submission if one input isnt valid.
 $('form').on('submit', function(e){
