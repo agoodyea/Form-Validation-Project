@@ -1,3 +1,3 @@
 # techdegree-project-3
 
-A js project that uses jQuery to offer a range functionality and form validation.
+A Js project that uses jQuery to provide a range functionality and form validation features.
