@@ -308,7 +308,6 @@ $('#cvv').on('blur', paymentListner(isCvvTrue));
 // form listner that prevents submission if one input isnt valid.
 $('form').on('submit', function(e){
     if(!name || !email || !cc || !zip || !cvv){
-        console.log('yes');
         e.preventDefault();
     };
 })
