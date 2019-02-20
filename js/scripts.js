@@ -3,15 +3,17 @@ Treehouse Techdegree:
 FSJS project 3 - Interactive form
 ******************************************/
 
-let activityTotal = 0;
 
 // initialisation code
+let activityTotal = 0;
 $('#name').focus();
 $('#other-title').hide();
 $('.activities').append($('span'));
 $('.activities span').css('color', 'green');
 $('.activities span').hide();
+$('#colors-js-puns').hide();
 
+// function to insert hidden error messages
 const insertMessage = (msgElement, beforeElement) => {
     varName = $(msgElement);
     varName.css('color', 'red');
@@ -20,17 +22,14 @@ const insertMessage = (msgElement, beforeElement) => {
     return varName;
 }
 
+// created error messages
 $nameError = insertMessage($('<p>Please enter a valid name</p>'), $('label:eq(0)'));
 $emailError = insertMessage($('<p>Please enter a valid email</p>'), $('label:eq(1)'));
-$activityError = insertMessage($('<p>Please choose atleast one activity</p>'), $('.activities label:eq(0)'));
-$ccError = insertMessage($('<p>Please enter a valid credit card number (13-16 digits)</p>'), $('#credit-card'));
+$activityError = insertMessage($('<p>Please choose at least one activity</p>'), $('.activities label:eq(0)'));
+$ccError = insertMessage($('<p>Please enter a valid credit card number that is between 13-16 digits long</p>'), $('#credit-card'));
+$ccError2 = insertMessage($('<p>Please enter a valid credit card number</p>'), $('#credit-card'));
 $zipError = insertMessage($('<p>Please enter a valid zip code</p>'), $('#credit-card'));
 $cvvError = insertMessage($('<p>Please enter a valid CVV</p>'), $('#credit-card'));
-
-
-
-// $nameError = $('<span>Please enter a valid name</span>');
-// $($nameError).insertBefore('label:eq(0)');
 
 
 // job title event listener
@@ -44,8 +43,10 @@ $('#title').on('change', function(e){
 
 // T-SHIRT SELECTION SECTION ----------------------------------------------
 
+// event listner on design selection. Determines what is shown in the color selection field.
 $('#design').on('change', function(e){
     if($(e.target).val() === 'js puns'){
+        $('#colors-js-puns').show();
         $('#color option:eq(0)').attr('selected', true);
         $('#color option:eq(3)').attr('selected', false);
 
@@ -57,6 +58,7 @@ $('#design').on('change', function(e){
             }
         })
     }else if($(e.target).val() === 'heart js'){
+        $('#colors-js-puns').show();
         $('#color option:eq(3)').attr('selected', true);
         $('#color option:eq(0)').attr('selected', false);
 
@@ -69,31 +71,34 @@ $('#design').on('change', function(e){
     })
     }else{
         $('#color option').each(function(index, element){
+            $('#colors-js-puns').hide();
             $(element).attr('selected', false);
             $(element).show();
         })
     }
 });
 
+$()
+
 // ACTIVITIES SECTION -------------------------------------------------------
 
-// track and display total cost
+// listners to track and display total cost of activities
 $('.activities').on('change', function(e){
     let $activityText = $(e.target).parent().text();
     let strEnd = $activityText.length;
     let cost = parseInt($activityText.slice(-3, strEnd));
-    $('.activities span:eq(1)').show();
+    $('.activities span').show();
 
     if ($(event.target).is(':checked')) {
         activityTotal += cost;
-        $('.activities span:eq(1)').text('$' + activityTotal);
+        $('.activities span').text('$' + activityTotal);
     }else{
         activityTotal -= cost;
-        $('.activities span:eq(1)').text('$' + activityTotal);
+        $('.activities span').text('$' + activityTotal);
     }
 
     if (activityTotal === 0) {
-        $('.activities span:eq(1)').hide();
+        $('.activities span').hide();
     }
 })
 
@@ -126,10 +131,12 @@ $($nodeJs).on('change', stateAndStyleEvent($jsLibs));
 
 // PAYMENT SECTION --------------------------------------------------------
 
+// organise payment section
 $('#payment').parent().addClass('paymentField');
 $('#payment option:eq(0)').remove();
 $('.paymentField div p').hide();
 
+// listner to determine when to show paypal and bitcoin messages
 $('#payment').on('change', function(e){
     if ($(e.target).val() === 'credit card') {
         $('div p').hide();
@@ -147,6 +154,7 @@ $('#payment').on('change', function(e){
 
 // FORM VALIDATION -----------------------------------------------------------
 
+// boolean variables for each field. will be assigned true when valid.
 let name = false;
 let email = false;
 let activities = false;
@@ -154,8 +162,9 @@ let cc = false;
 let zip = false;
 let cvv = false;
 
+// regex's test functions for each form field.
 function isNameTrue(name){
-    return /^\w+$/.test(name)
+    return /^[A-Za-z ]+$/.test(name)
 }
 
 function isEmailTrue(email){
@@ -174,7 +183,8 @@ function isCvvTrue(cvv){
     return  /^\d{3}$/.test(cvv);
 }
 
-// event listner functions
+// event listner function for name and email.
+// determines if inputs are valid and if error messages should be shown.
 function NameEmailListner(isValid){
     return e => {
         const id = $(e.target).attr('id')
@@ -202,6 +212,8 @@ function NameEmailListner(isValid){
     }
 }
 
+// event listner function for payment section.
+// determines if inputs are valid and if error messages should be shown.
 function paymentListner(isValid){
     return e => {
         const id = $(e.target).attr('id');
@@ -212,7 +224,13 @@ function paymentListner(isValid){
             $(e.target).css('border-color', 'red');
             if(id === 'cc-num'){
                 cc = false;
-                $ccError.show();
+                if(text === ''){
+                    $ccError2.show()
+                    $ccError.hide();
+                }else{
+                    $ccError.show();
+                    $ccError2.hide();
+                }
             }else if(id === 'zip'){
                 zip = false;
                 $zipError.show();
@@ -239,13 +257,14 @@ function paymentListner(isValid){
 
 // Event Listners
 
-//name
+// name
 $('#name').on('blur', NameEmailListner(isNameTrue));
 
-//email
-$('#mail').on('blur', NameEmailListner(isEmailTrue));
+// email
+$('#mail').on('input', NameEmailListner(isEmailTrue));
 
-//activities
+// activities listner that determines if at least one activity is selected
+// else return error message.
 $('.activities').on('change', function(){
     $('.activities label input').each(function(){
         if(!$(this).is(':checked')){
@@ -263,7 +282,7 @@ $('.activities').on('change', function(){
     }
 );
 
-//payment
+//payment listner that disables error messages if paypal or bitcoin are selected.
 $('#payment').on('change', function(e){
     if($(e.target).val() !== 'credit card') {
         $('#cc-num').css('border-color', '');
@@ -272,13 +291,18 @@ $('#payment').on('change', function(e){
         $ccError.hide();
         $cvvError.hide();
         $zipError.hide();
+        cc = true;
+        zip = true;
+        cvv = true;
     }
 })
 
+// payment
 $('#cc-num').on('blur', paymentListner(isCCTrue));
 $('#zip').on('blur', paymentListner(isZipTrue));
 $('#cvv').on('blur', paymentListner(isCvvTrue));
 
+// form listner that prevents submission if one input isnt valid.
 $('form').on('submit', function(e){
     if(!name || !email || !cc || !zip || !cvv){
         console.log('yes');
@@ -286,11 +310,6 @@ $('form').on('submit', function(e){
     };
 })
 
-
-
-/*
-I need to check each indiviual isTrue to see if they are all true, and if even one isnt preventDefault.
-*/
 
 
 
