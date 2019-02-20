@@ -12,6 +12,26 @@ $('.activities').append($('span'));
 $('.activities span').css('color', 'green');
 $('.activities span').hide();
 
+const insertMessage = (msgElement, beforeElement) => {
+    varName = $(msgElement);
+    varName.css('color', 'red');
+    $(varName).insertBefore(beforeElement);
+    $(varName).hide();
+    return varName;
+}
+
+$nameError = insertMessage($('<p>Please enter a valid name</p>'), $('label:eq(0)'));
+$emailError = insertMessage($('<p>Please enter a valid email</p>'), $('label:eq(1)'));
+$activityError = insertMessage($('<p>Please choose atleast one activity</p>'), $('.activities label:eq(0)'));
+$ccError = insertMessage($('<p>Please enter a valid credit card number (13-16 digits)</p>'), $('#credit-card'));
+$zipError = insertMessage($('<p>Please enter a valid zip code</p>'), $('#credit-card'));
+$cvvError = insertMessage($('<p>Please enter a valid CVV</p>'), $('#credit-card'));
+
+
+
+// $nameError = $('<span>Please enter a valid name</span>');
+// $($nameError).insertBefore('label:eq(0)');
+
 
 // job title event listener
 $('#title').on('change', function(e){
@@ -62,18 +82,18 @@ $('.activities').on('change', function(e){
     let $activityText = $(e.target).parent().text();
     let strEnd = $activityText.length;
     let cost = parseInt($activityText.slice(-3, strEnd));
-    $('.activities span').show();
+    $('.activities span:eq(1)').show();
 
     if ($(event.target).is(':checked')) {
         activityTotal += cost;
-        $('.activities span').text('$' + activityTotal);
+        $('.activities span:eq(1)').text('$' + activityTotal);
     }else{
         activityTotal -= cost;
-        $('.activities span').text('$' + activityTotal);
+        $('.activities span:eq(1)').text('$' + activityTotal);
     }
 
     if (activityTotal === 0) {
-        $('.activities span').hide();
+        $('.activities span:eq(1)').hide();
     }
 })
 
@@ -106,8 +126,9 @@ $($nodeJs).on('change', stateAndStyleEvent($jsLibs));
 
 // PAYMENT SECTION --------------------------------------------------------
 
+$('#payment').parent().addClass('paymentField');
 $('#payment option:eq(0)').remove();
-$('div p').hide();
+$('.paymentField div p').hide();
 
 $('#payment').on('change', function(e){
     if ($(e.target).val() === 'credit card') {
@@ -115,42 +136,160 @@ $('#payment').on('change', function(e){
 
     }
     else if ($(e.target).val() === 'paypal') {
-        $('div p:eq(0)').show();
-        $('div p:eq(1)').hide();
+        $('.paymentField div p:eq(0)').show();
+        $('.paymentField div p:eq(1)').hide();
     }
     else {
-        $('div p:eq(1)').show();
-        $('div p:eq(0)').hide();
+        $('.paymentField div p:eq(1)').show();
+        $('.paymentField div p:eq(0)').hide();
     }
+})
+
+// FORM VALIDATION -----------------------------------------------------------
+
+let name = false;
+let email = false;
+let activities = false;
+let cc = false;
+let zip = false;
+let cvv = false;
+
+function isNameTrue(name){
+    return /^\w+$/.test(name)
+}
+
+function isEmailTrue(email){
+    return /^[^@]+@[^@]+\.[a-z]+$/i.test(email);
+}
+
+function isCCTrue(number){
+    return /^\d{13,16}$/.test(number);
+}
+
+function isZipTrue(zip){
+    return /^\d{5}$/.test(zip);
+}
+
+function isCvvTrue(cvv){
+    return  /^\d{3}$/.test(cvv);
+}
+
+// event listner functions
+function NameEmailListner(isValid){
+    return e => {
+        const id = $(e.target).attr('id')
+        const text = $(e.target).val();
+        const valid = isValid(text);
+        if(!valid){
+            $(e.target).css('border-color', 'red');
+            if(id === 'name' ){
+                name = false;
+                $nameError.show();
+            }else{
+                email = false;
+                $emailError.show();
+            }
+        }else{
+            $(e.target).css('border-color', '');
+            if(id === 'name' ){
+                name = true;
+                $nameError.hide();
+            }else{
+                email = true;
+                $emailError.hide();
+            }
+        }
+    }
+}
+
+function paymentListner(isValid){
+    return e => {
+        const id = $(e.target).attr('id');
+        const text = $(e.target).val();
+        const valid = isValid(text);
+        const selection = $('#payment').val();
+        if(!valid && selection === 'credit card'){
+            $(e.target).css('border-color', 'red');
+            if(id === 'cc-num'){
+                cc = false;
+                $ccError.show();
+            }else if(id === 'zip'){
+                zip = false;
+                $zipError.show();
+            }else{
+                cvv = false
+                $cvvError.show();
+            }
+
+        }else{
+            $(e.target).css('border-color', '');
+            if(id === 'cc-num'){
+                cc = true;
+                $ccError.hide();
+            }else if(id === 'zip'){
+                zip = true;
+                $zipError.hide();
+            }else{
+                cvv = true
+                $cvvError.hide();
+            }
+        }
+    } 
+}
+
+// Event Listners
+
+//name
+$('#name').on('blur', NameEmailListner(isNameTrue));
+
+//email
+$('#mail').on('blur', NameEmailListner(isEmailTrue));
+
+//activities
+$('.activities').on('change', function(){
+    $('.activities label input').each(function(){
+        if(!$(this).is(':checked')){
+            $('.activities').css('color', 'red');
+            activities = false;
+            $activityError.show();
+        }else{
+            $('.activities:eq(0)').css('color', '');
+            activities = true;
+            $activityError.hide();
+            return false;
+        }
+    }
+    )   
+    }
+);
+
+//payment
+$('#payment').on('change', function(e){
+    if($(e.target).val() !== 'credit card') {
+        $('#cc-num').css('border-color', '');
+        $('#zip').css('border-color', '');
+        $('#cvv').css('border-color', '');
+        $ccError.hide();
+        $cvvError.hide();
+        $zipError.hide();
+    }
+})
+
+$('#cc-num').on('blur', paymentListner(isCCTrue));
+$('#zip').on('blur', paymentListner(isZipTrue));
+$('#cvv').on('blur', paymentListner(isCvvTrue));
+
+$('form').on('submit', function(e){
+    if(!name || !email || !cc || !zip || !cvv){
+        console.log('yes');
+        e.preventDefault();
+    };
 })
 
 
 
-
-
-// if($(e.target).is(':checked')){
-//     $($express).attr('disabled', true);
-//     $($express).parent().css('text-decoration', 'line-through');
-//     $($express).parent().css('color', 'grey');
-// }else{
-//     $($express).attr('disabled', false);
-//     $($express).parent().css('text-decoration', '');
-//     $($express).parent().css('color', '');
-// }
-
 /*
-
-    -when the js framworks is checked, disable express
-    -when the js framworks is unchecked, enable express
-
-    -when js lib is checked, disable node.js
-    -when js lib is unchecked, enable node.js
-
-    -when express is checked, disable js frameworks
-    -when express is unchecked, enable js frameworks
-
-    -when node.js is checked, disable js lib
-    -when node.js is unchecked, enable js lib
+I need to check each indiviual isTrue to see if they are all true, and if even one isnt preventDefault.
 */
 
 
