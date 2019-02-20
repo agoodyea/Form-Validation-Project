@@ -285,6 +285,7 @@ $('.activities').on('change', function(){
 //payment listner that disables error messages if paypal or bitcoin are selected.
 $('#payment').on('change', function(e){
     if($(e.target).val() !== 'credit card') {
+        $('#credit-card').hide();
         $('#cc-num').css('border-color', '');
         $('#zip').css('border-color', '');
         $('#cvv').css('border-color', '');
@@ -294,6 +295,8 @@ $('#payment').on('change', function(e){
         cc = true;
         zip = true;
         cvv = true;
+    }else{
+        $('#credit-card').show();
     }
 })
 
