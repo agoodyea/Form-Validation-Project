@@ -1,6 +1,6 @@
 # Form-Validation-Project
 
-A form page for a tech convetion that provides a users with a means to input data related to themselves and the convention.
+A form page for a tech convetion that provides users with a means to input data related to themselves and the convention.
 Form updates dynamically in responce to user input. 
 
 Features
